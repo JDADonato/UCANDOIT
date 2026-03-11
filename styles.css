@@ -43,30 +43,7 @@
   --transition-normal: 0.25s ease-in-out;
 }
 
-body.light-theme {
-  /* Light Mode Greens - FEU Theme Refined */
-  --bg-primary: #f8fafc; /* Slate 50 - clean offwhite */
-  --bg-secondary: #ffffff;
-  --text-primary: #064e3b; /* Emerald 900 */
-  --text-secondary: #0f766e; /* Teal 700 */
-  --border-color: #e2e8f0; 
-  
-  /* FEU Gold / Mustard Yellow Accents */
-  --accent-primary: #d97706; /* Amber 600 */
-  --accent-hover: #b45309; /* Amber 700 */
-  --accent-light: rgba(217, 119, 6, 0.1);
 
-  --danger: #dc2626;
-  --danger-hover: #b91c1c;
-  --danger-bg: rgba(220, 38, 38, 0.08);
-  
-  --todo-color: #d97706; /* Amber 600 */
-  --due-color: #dc2626; /* Red 600 */
-
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
 
 * {
   box-sizing: border-box;
@@ -157,34 +134,16 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.theme-toggle {
-  color: var(--text-secondary);
-  background: transparent;
-  border: 1px solid var(--border-color);
-}
-
-.theme-toggle:hover {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-.header-actions {
+.action-group {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
-
-.theme-toggle {
-  color: var(--text-secondary);
-  background: transparent;
-  border: 1px solid var(--border-color);
-}
-.theme-toggle:hover {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  gap: 0.35rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--border-color);
 }
 
 .view-toggle {

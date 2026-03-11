@@ -226,20 +226,7 @@ function updateCounters() {
 
 // --- 3. Event Listeners ---
 function setupEventListeners() {
-    // Top Bar (View toggle & Theme)
-    const themeBtn = document.getElementById('btn-theme-toggle');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            document.body.classList.toggle('light-theme');
-            const isLight = document.body.classList.contains('light-theme');
-            const icon = themeBtn.querySelector('i');
-            if(icon) {
-                icon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
-                lucide.createIcons();
-            }
-        });
-    }
-
+    // Top Bar (View toggle)
     document.getElementById('btn-calendar-view').addEventListener('click', (e) => {
         switchView('calendar', e.currentTarget);
     });

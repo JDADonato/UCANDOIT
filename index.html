@@ -34,21 +34,7 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button id="btn-settings" class="icon-btn" title="Open Settings" style="margin-right: 0.5rem;">
-                        <i data-lucide="settings"></i>
-                    </button>
-                    <button id="btn-sync" class="icon-btn" title="Sync with Google Sheets" style="margin-right: 0.5rem;">
-                        <i data-lucide="refresh-cw"></i>
-                    </button>
-                    <button id="btn-export-pdf" class="icon-btn" title="Export Current View to PDF" style="margin-right: 0.5rem;">
-                        <i data-lucide="download"></i>
-                    </button>
-                    <button id="btn-copy-tasks" class="icon-btn" title="Copy Tasks to Clipboard" style="margin-right: 0.5rem;">
-                        <i data-lucide="clipboard-copy"></i>
-                    </button>
-                    <button id="btn-theme-toggle" class="icon-btn theme-toggle" title="Toggle Light/Dark Mode">
-                        <i data-lucide="sun"></i>
-                    </button>
+                    <!-- Primary: View Switching -->
                     <div class="view-toggle">
                         <button id="btn-list-view" class="toggle-btn active" title="List View">
                             <i data-lucide="list-todo"></i>
@@ -57,6 +43,26 @@
                         <button id="btn-calendar-view" class="toggle-btn" title="Calendar View">
                             <i data-lucide="calendar"></i>
                             <span>Calendar</span>
+                        </button>
+                    </div>
+
+                    <!-- Secondary: Export Actions -->
+                    <div class="action-group">
+                        <button id="btn-copy-tasks" class="icon-btn" title="Copy Tasks to Clipboard">
+                            <i data-lucide="clipboard-copy"></i>
+                        </button>
+                        <button id="btn-export-pdf" class="icon-btn" title="Export to PDF">
+                            <i data-lucide="download"></i>
+                        </button>
+                    </div>
+
+                    <!-- Tertiary: Utility -->
+                    <div class="action-group">
+                        <button id="btn-sync" class="icon-btn" title="Sync with Google Sheets">
+                            <i data-lucide="refresh-cw"></i>
+                        </button>
+                        <button id="btn-settings" class="icon-btn" title="Settings">
+                            <i data-lucide="settings"></i>
                         </button>
                     </div>
                 </div>
