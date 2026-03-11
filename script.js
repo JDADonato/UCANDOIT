@@ -1424,15 +1424,15 @@ const NotificationEngine = {
                     title: '⚠️ Upcoming Academic Tasks',
                     options: {
                         body: body,
-                        icon: 'https://cdn-icons-png.flaticon.com/512/906/906334.png',
-                        badge: 'https://cdn-icons-png.flaticon.com/512/906/906334.png',
+                        icon: 'icons/icon-192.png',
+                        badge: 'icons/icon-192.png',
                         vibrate: [200, 100, 200]
                     }
                 });
             } else {
                 new Notification('⚠️ Upcoming Academic Tasks', {
                     body: body,
-                    icon: 'https://cdn-icons-png.flaticon.com/512/906/906334.png'
+                    icon: 'icons/icon-192.png'
                 });
             }
             
