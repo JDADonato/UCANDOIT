@@ -1361,3 +1361,102 @@ function handleAddSubjectFromSettings(e) {
     }
 }
 
+// --- 5. PWA & Web Notifications Engine ---
+
+const NotificationEngine = {
+    async requestPermission() {
+        if (!('Notification' in window)) {
+            console.log('This browser does not support desktop notification');
+            return false;
+        }
+        
+        if (Notification.permission === 'granted') {
+            return true;
+        } else if (Notification.permission !== 'denied') {
+            const permission = await Notification.requestPermission();
+            return permission === 'granted';
+        }
+        return false;
+    },
+
+    async checkUpcomingTasksAndNotify() {
+        const hasPermission = await this.requestPermission();
+        if (!hasPermission) return;
+
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
+
+        // Get uncompleted tasks due today or tomorrow
+        const upcomingTasks = Store.tasks.filter(t => !t.completed && (t.date === todayStr || t.date === tomorrowStr));
+        
+        // Group by date
+        const dueToday = upcomingTasks.filter(t => t.date === todayStr);
+        const dueTomorrow = upcomingTasks.filter(t => t.date === tomorrowStr);
+
+        // Notify if there are tasks
+        this.sendNotification(dueToday, dueTomorrow);
+    },
+
+    sendNotification(dueToday, dueTomorrow) {
+        // To prevent spamming, we check if we already notified today
+        const lastNotified = localStorage.getItem('last_notified_date');
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        // Only notify once per day unless forced
+        if (lastNotified === todayStr && (dueToday.length === 0 && dueTomorrow.length === 0)) {
+            return;
+        }
+
+        if (dueToday.length > 0 || dueTomorrow.length > 0) {
+            let body = '';
+            if (dueToday.length > 0) body += `You have ${dueToday.length} task(s) due TODAY.\n`;
+            if (dueTomorrow.length > 0) body += `You have ${dueTomorrow.length} task(s) due TOMORROW.\n`;
+            body += 'Open UCANDOIT to review them.';
+
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                // Use service worker to show a proper persistent notification
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'SHOW_NOTIFICATION',
+                    title: '⚠️ Upcoming Academic Tasks',
+                    options: {
+                        body: body,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/906/906334.png',
+                        badge: 'https://cdn-icons-png.flaticon.com/512/906/906334.png',
+                        vibrate: [200, 100, 200]
+                    }
+                });
+            } else {
+                new Notification('⚠️ Upcoming Academic Tasks', {
+                    body: body,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/906/906334.png'
+                });
+            }
+            
+            localStorage.setItem('last_notified_date', todayStr);
+        }
+    }
+};
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(registration => {
+            console.log('SW registered: ', registration.scope);
+            // Run notification check shortly after load
+            setTimeout(() => {
+                NotificationEngine.checkUpcomingTasksAndNotify();
+            }, 3000);
+        }).catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+        });
+    });
+} else {
+    // Run notification check anyway if SW is not supported but Notifications API is
+    setTimeout(() => {
+        NotificationEngine.checkUpcomingTasksAndNotify();
+    }, 3000);
+}
