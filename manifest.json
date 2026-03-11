@@ -1,0 +1,24 @@
+{
+  "name": "UCANDOIT",
+  "short_name": "UCANDOIT",
+  "description": "Academic To-Do & Deadlines Manager — Stay on top of your tasks, dues, and subjects.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#030706",
+  "theme_color": "#064e3b",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

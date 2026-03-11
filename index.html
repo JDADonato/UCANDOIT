@@ -11,6 +11,14 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- HTML2PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <meta name="description" content="UCANDOIT — Academic To-Do & Deadlines Manager">
+    <meta name="theme-color" content="#064e3b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UCANDOIT">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -28,6 +36,9 @@
                 <div class="header-actions">
                     <button id="btn-settings" class="icon-btn" title="Open Settings" style="margin-right: 0.5rem;">
                         <i data-lucide="settings"></i>
+                    </button>
+                    <button id="btn-sync" class="icon-btn" title="Sync with Google Sheets" style="margin-right: 0.5rem;">
+                        <i data-lucide="refresh-cw"></i>
                     </button>
                     <button id="btn-export-pdf" class="icon-btn" title="Export Current View to PDF" style="margin-right: 0.5rem;">
                         <i data-lucide="download"></i>
@@ -290,5 +301,13 @@
     <div class="toast-container" id="toast-container"></div>
 
     <script src="script.js"></script>
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('SW registered'))
+                .catch(err => console.warn('SW registration failed:', err));
+        }
+    </script>
 </body>
 </html>

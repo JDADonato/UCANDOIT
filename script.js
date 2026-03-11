@@ -38,6 +38,54 @@ const DEFAULT_TASKS = [
     {"title":"Prepare for SA2","type":"todo","subject":"sub-1","date":"2026-03-10","desc":"","id":"task-1773121709319","completed":false}
 ];
 
+// --- Google Sheets Sync ---
+// PASTE YOUR DEPLOYED APPS SCRIPT WEB APP URL BELOW:
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzPDtPAYiUV0BGfUrjWwApC93btEvK_t-EFd6P9EvKzlLzkDL-UsguHKJMWav43e6Cj2Q/exec'; // e.g. 'https://script.google.com/macros/s/XXXX/exec'
+
+const SheetsSync = {
+    isEnabled() {
+        return APPS_SCRIPT_URL && APPS_SCRIPT_URL.length > 10;
+    },
+
+    async pull() {
+        if (!this.isEnabled()) return null;
+        try {
+            const res = await fetch(APPS_SCRIPT_URL + '?action=getAll');
+            const json = await res.json();
+            if (json.success) return json.data;
+        } catch (e) {
+            console.warn('Sheets pull failed:', e);
+        }
+        return null;
+    },
+
+    async pushAll(tasks, subjects) {
+        if (!this.isEnabled()) return;
+        try {
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'syncAll', tasks, subjects })
+            });
+        } catch (e) {
+            console.warn('Sheets push failed:', e);
+        }
+    },
+
+    async post(payload) {
+        if (!this.isEnabled()) return;
+        try {
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(payload)
+            });
+        } catch (e) {
+            console.warn('Sheets post failed:', e);
+        }
+    }
+};
+
 class StateManager {
     constructor() {
         this.tasks = JSON.parse(localStorage.getItem('academic_tasks')) || DEFAULT_TASKS;
@@ -61,6 +109,7 @@ class StateManager {
         task.id = 'task-' + Date.now();
         this.tasks.push(task);
         this.saveTasks();
+        SheetsSync.post({ action: 'addTask', task });
         return task;
     }
 
@@ -69,12 +118,14 @@ class StateManager {
         if (index !== -1) {
             this.tasks[index] = updatedTask;
             this.saveTasks();
+            SheetsSync.post({ action: 'updateTask', task: updatedTask });
         }
     }
 
     deleteTask(id) {
         this.tasks = this.tasks.filter(t => t.id !== id);
         this.saveTasks();
+        SheetsSync.post({ action: 'deleteTask', taskId: id });
     }
 
     addSubject(name, color) {
@@ -85,11 +136,34 @@ class StateManager {
         };
         this.subjects.push(newSub);
         this.saveSubjects();
+        SheetsSync.post({ action: 'addSubject', subject: newSub });
         return newSub;
     }
 
     getSubjectById(id) {
         return this.subjects.find(s => s.id === id);
+    }
+
+    // Full sync: push everything to Google Sheets
+    async syncToSheets() {
+        await SheetsSync.pushAll(this.tasks, this.subjects);
+    }
+
+    // Pull from Google Sheets and overwrite local
+    async syncFromSheets() {
+        const data = await SheetsSync.pull();
+        if (data) {
+            if (data.tasks && data.tasks.length > 0) {
+                this.tasks = data.tasks;
+                this.saveTasks();
+            }
+            if (data.subjects && data.subjects.length > 0) {
+                this.subjects = data.subjects;
+                this.saveSubjects();
+            }
+            return true;
+        }
+        return false;
     }
 }
 
@@ -111,10 +185,19 @@ let searchTerm = '';
 let filterType = 'all';
 let filterSubject = 'all';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     lucide.createIcons();
     const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('current-date-display').textContent = new Date().toLocaleDateString('en-US', dateOptions);
+
+    // Attempt to pull from Google Sheets on load
+    if (SheetsSync.isEnabled()) {
+        const pulled = await Store.syncFromSheets();
+        if (!pulled) {
+            // Sheet is empty or unreachable — push local data up
+            await Store.syncToSheets();
+        }
+    }
 
     populateSubjectDropdowns();
     renderAll();
@@ -173,6 +256,25 @@ function setupEventListeners() {
     const copyBtn = document.getElementById('btn-copy-tasks');
     if (copyBtn) {
         copyBtn.addEventListener('click', copyTasksToClipboard);
+    }
+
+    const syncBtn = document.getElementById('btn-sync');
+    if (syncBtn) {
+        syncBtn.addEventListener('click', async () => {
+            if (!SheetsSync.isEnabled()) {
+                showToast('Google Sheets URL not configured', 'error');
+                return;
+            }
+            syncBtn.style.animation = 'spin 1s linear infinite';
+            showToast('Syncing with Google Sheets...', 'success');
+            try {
+                await Store.syncToSheets();
+                showToast('Synced to Google Sheets!', 'success');
+            } catch (e) {
+                showToast('Sync failed', 'error');
+            }
+            syncBtn.style.animation = '';
+        });
     }
     
     document.getElementById('btn-settings').addEventListener('click', openSettingsModal);
